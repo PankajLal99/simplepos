@@ -2,8 +2,34 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Simple POS{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <!-- Primary Meta Tags -->
+    <title>{% block title %}Simple POS - Modern Point of Sale System{% endblock %}</title>
+    <meta name="title" content="Simple POS - Modern Point of Sale System">
+    <meta name="description" content="Simple POS is a modern, user-friendly point of sale system for small businesses. Features include inventory management, sales tracking, and easy-to-use interface.">
+    <meta name="keywords" content="POS system, point of sale, inventory management, retail software, small business POS, sales tracking, barcode scanner, receipt printer, cash register software">
+    <meta name="author" content="ITS India">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://pos.intratechnosolutions.com/">
+    <meta property="og:title" content="Simple POS - Modern Point of Sale System">
+    <meta property="og:description" content="Simple POS is a modern, user-friendly point of sale system for small businesses. Features include inventory management, sales tracking, and easy-to-use interface.">
+    
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://pos.intratechnosolutions.com/">
+    <meta property="twitter:title" content="Simple POS - Modern Point of Sale System">
+    <meta property="twitter:description" content="Simple POS is a modern, user-friendly point of sale system for small businesses. Features include inventory management, sales tracking, and easy-to-use interface.">
+    <meta property="twitter:image" content="https://pos.intratechnosolutions.com/static/images/og-image.jpg">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path d='M2.97 1.35A1 1 0 0 1 3.73 1h8.54a1 1 0 0 1 .76.35l2.609 3.044A1.5 1.5 0 0 1 16 5.37v.255a2.375 2.375 0 0 1-4.25 1.458A2.37 2.37 0 0 1 9.875 8 2.37 2.37 0 0 1 8 7.083 2.37 2.37 0 0 1 6.125 8a2.37 2.37 0 0 1-1.875-.917A2.375 2.375 0 0 1 0 5.625V5.37a1.5 1.5 0 0 1 .361-.976zm1.78 4.275a1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0 1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0 1.375 1.375 0 1 0 2.75 0V5.37a.5.5 0 0 0-.12-.325L12.27 2H3.73L1.12 5.045A.5.5 0 0 0 1 5.37v.255a1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0M1.5 8.5A.5.5 0 0 1 2 9v6h1v-5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v5h6V9a.5.5 0 0 1 1 0v6h.5a.5.5 0 0 1 0 1H.5a.5.5 0 0 1 0-1H1V9a.5.5 0 0 1 .5-.5M4 15h3v-5H4zm5-5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1zm3 0h-2v3h2z' fill='%230d6efd'/></svg>">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path d='M2.97 1.35A1 1 0 0 1 3.73 1h8.54a1 1 0 0 1 .76.35l2.609 3.044A1.5 1.5 0 0 1 16 5.37v.255a2.375 2.375 0 0 1-4.25 1.458A2.37 2.37 0 0 1 9.875 8 2.37 2.37 0 0 1 8 7.083 2.37 2.37 0 0 1 6.125 8a2.37 2.37 0 0 1-1.875-.917A2.375 2.375 0 0 1 0 5.625V5.37a1.5 1.5 0 0 1 .361-.976zm1.78 4.275a1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0 1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0 1.375 1.375 0 1 0 2.75 0V5.37a.5.5 0 0 0-.12-.325L12.27 2H3.73L1.12 5.045A.5.5 0 0 0 1 5.37v.255a1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0M1.5 8.5A.5.5 0 0 1 2 9v6h1v-5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v5h6V9a.5.5 0 0 1 1 0v6h.5a.5.5 0 0 1 0 1H.5a.5.5 0 0 1 0-1H1V9a.5.5 0 0 1 .5-.5M4 15h3v-5H4zm5-5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1zm3 0h-2v3h2z' fill='%230d6efd'/></svg>">
+    
     <!-- Bootstrap 5.3 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
@@ -18,6 +44,27 @@
             --font-weight-normal: 400;
             --font-weight-medium: 500;
             --font-weight-semibold: 600;
+        }
+        
+        /* Mobile-specific input styles */
+        @media (max-width: 991.98px) {
+            input[type="text"],
+            input[type="number"],
+            input[type="search"],
+            input[type="email"],
+            input[type="tel"],
+            input[type="password"] {
+                font-size: 16px !important;
+                padding: 0.75rem 1rem !important;
+            }
+            
+            .form-control {
+                font-size: 16px !important;
+            }
+            
+            .input-group-text {
+                font-size: 16px !important;
+            }
         }
         
         body {
@@ -155,19 +202,19 @@
                     <li class="nav-item">
                         <a class="nav-link d-flex align-items-center {% if request.resolver_match.url_name == 'pos_home' %}active{% endif %}" 
                            href="{% url 'pos_home' %}">
-                            <i class="bi bi-house-door me-2"></i>Home
+                            <i class="bi bi-house-door-fill me-2"></i>Home
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link d-flex align-items-center {% if request.resolver_match.url_name == 'products_list' %}active{% endif %}" 
                            href="{% url 'products_list' %}">
-                            <i class="bi bi-box me-2"></i>Products
+                            <i class="bi bi-box-seam-fill me-2"></i>Products
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link d-flex align-items-center {% if request.resolver_match.url_name == 'pricing' %}active{% endif %}" 
                            href="{% url 'pricing' %}">
-                            <i class="bi bi-credit-card me-2"></i>Pricing
+                            <i class="bi bi-credit-card-fill me-2"></i>Pricing
                         </a>
                     </li>
                 </ul>
