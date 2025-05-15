@@ -1,0 +1,1 @@
+from simplepos.wsgi import application

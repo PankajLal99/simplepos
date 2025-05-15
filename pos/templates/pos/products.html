@@ -1,0 +1,422 @@
+{% extends 'pos/base.html' %}
+
+{% block extra_css %}
+<style>
+.product-card {
+    transition: all 0.2s ease;
+    border: none;
+    border-radius: 1rem;
+}
+
+.product-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.1) !important;
+}
+
+.stock-badge {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    font-size: var(--font-size-sm);
+    padding: 0.4rem 0.6rem;
+    border-radius: 2rem;
+}
+
+.stock-history {
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 0.75rem;
+    background-color: #f8f9fa;
+    border-radius: 0.75rem;
+    margin-top: 0.75rem;
+}
+
+.stock-transaction {
+    border-left: 3px solid;
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+    background-color: white;
+    border-radius: 0 0.5rem 0.5rem 0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    transition: all 0.2s ease;
+    font-size: var(--font-size-base);
+}
+
+.stock-transaction:hover {
+    transform: translateX(4px);
+}
+
+.stock-in {
+    border-left-color: #198754;
+}
+
+.stock-out {
+    border-left-color: #dc3545;
+}
+
+/* Custom scrollbar for stock history */
+.stock-history::-webkit-scrollbar {
+    width: 6px;
+}
+
+.stock-history::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.stock-history::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+.stock-history::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* Form controls */
+.form-control {
+    border-radius: 0.5rem;
+    border: 1px solid #dee2e6;
+    padding: 0.5rem 0.75rem;
+    font-size: var(--font-size-base);
+}
+
+.form-control:focus {
+    box-shadow: 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25);
+    border-color: var(--bs-primary);
+}
+
+.input-group-text {
+    border-radius: 0.5rem;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    font-size: var(--font-size-base);
+}
+
+/* Modals */
+.modal-content {
+    border: none;
+    border-radius: 1rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.modal-header {
+    border-bottom: 1px solid #dee2e6;
+    padding: 1rem;
+}
+
+.modal-footer {
+    border-top: 1px solid #dee2e6;
+    padding: 1rem;
+}
+
+/* Card styles */
+.card-title {
+    font-size: 1.1rem;
+    font-weight: var(--font-weight-semibold);
+    margin-bottom: 0.75rem;
+}
+
+.card-text {
+    font-size: var(--font-size-base);
+}
+
+.card-text .fw-semibold {
+    font-weight: var(--font-weight-semibold);
+}
+
+/* Button styles */
+.btn {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-medium);
+}
+
+.btn-sm {
+    font-size: var(--font-size-sm);
+    padding: 0.25rem 0.5rem;
+}
+
+/* Badge styles */
+.badge {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    padding: 0.35rem 0.65rem;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">Products Management</h2>
+            <p class="text-muted mb-0">Manage your product inventory and stock levels</p>
+        </div>
+        <button class="btn btn-primary d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#productModal">
+            <i class="bi bi-plus-lg"></i> New Product
+        </button>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        {% for product in products %}
+        <div class="col">
+            <div class="card product-card shadow-sm h-100">
+                <div class="card-body p-4">
+                    {% if product.maintain_stock %}
+                    <span class="badge bg-{{ product.stock.current_quantity|yesno:'success,danger' }} stock-badge">
+                        <i class="bi bi-box me-1"></i>Stock: {{ product.stock.current_quantity }}
+                    </span>
+                    {% endif %}
+                    
+                    <h5 class="card-title fw-bold mb-3">{{ product.name }}</h5>
+                    <div class="mb-3">
+                        <p class="card-text text-muted mb-2">
+                            <i class="bi bi-upc me-2"></i>SKU: {{ product.sku }}<br>
+                            <i class="bi bi-barcode me-2"></i>Barcode: {{ product.barcode }}
+                        </p>
+                        <p class="card-text">
+                            <span class="fw-semibold">Price:</span> 
+                            <span class="text-primary fw-bold">₹{{ product.price }}</span><br>
+                            <span class="fw-semibold">Stock Management:</span> 
+                            <span class="badge bg-{{ product.maintain_stock|yesno:'success,secondary' }}">
+                                {{ product.maintain_stock|yesno:"Enabled,Disabled" }}
+                            </span>
+                        </p>
+                    </div>
+                    
+                    <div class="d-flex gap-2 mt-auto">
+                        <button class="btn btn-outline-primary btn-sm d-flex align-items-center gap-2" 
+                                onclick="editProduct({{ product.id }})">
+                            <i class="bi bi-pencil"></i> Edit
+                        </button>
+                        {% if product.maintain_stock %}
+                        <button class="btn btn-outline-success btn-sm d-flex align-items-center gap-2" 
+                                onclick="showStockModal({{ product.id }})">
+                            <i class="bi bi-box"></i> Manage Stock
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Create/Edit Product Modal -->
+<div class="modal fade" id="productModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold" id="productModalTitle">New Product</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="productForm">
+                    <input type="hidden" id="productId">
+                    <div class="mb-3">
+                        <label for="productName" class="form-label fw-semibold">Product Name</label>
+                        <input type="text" class="form-control" id="productName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="productPrice" class="form-label fw-semibold">Price</label>
+                        <div class="input-group">
+                            <span class="input-group-text">₹</span>
+                            <input type="number" class="form-control" id="productPrice" step="0.01" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="maintainStock">
+                            <label class="form-check-label" for="maintainStock">
+                                Maintain Stock
+                            </label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary d-flex align-items-center gap-2" onclick="saveProduct()">
+                    <i class="bi bi-check-lg"></i> Save Product
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Stock Management Modal -->
+<div class="modal fade" id="stockModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold">Manage Stock</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-4">
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <i class="bi bi-box text-primary"></i>
+                        <h6 class="mb-0">Current Stock: <span id="currentStock" class="fw-bold">0</span></h6>
+                    </div>
+                    <div class="input-group">
+                        <input type="number" class="form-control" id="stockQuantity" 
+                               placeholder="Enter quantity" min="1">
+                        <button class="btn btn-success d-flex align-items-center gap-2" onclick="addStock()">
+                            <i class="bi bi-plus-lg"></i> Add Stock
+                        </button>
+                        <button class="btn btn-danger d-flex align-items-center gap-2" onclick="removeStock()">
+                            <i class="bi bi-dash-lg"></i> Remove Stock
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <i class="bi bi-clock-history text-primary"></i>
+                        <h6 class="mb-0">Stock History</h6>
+                    </div>
+                    <div class="stock-history" id="stockHistory"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let currentProductId = null;
+
+function editProduct(productId) {
+    currentProductId = productId;
+    $('#productModalTitle').text('Edit Product');
+    
+    // Fetch product details
+    $.get(`/api/products/${productId}/`, function(product) {
+        $('#productId').val(product.id);
+        $('#productName').val(product.name);
+        $('#productPrice').val(product.price);
+        $('#maintainStock').prop('checked', product.maintain_stock);
+        $('#productModal').modal('show');
+    });
+}
+
+function saveProduct() {
+    const productData = {
+        name: $('#productName').val(),
+        price: parseFloat($('#productPrice').val()),
+        maintain_stock: $('#maintainStock').is(':checked')
+    };
+
+    const url = currentProductId ? 
+        `/api/products/${currentProductId}/` : 
+        '/api/products/';
+    
+    const method = currentProductId ? 'PUT' : 'POST';
+
+    $.ajax({
+        url: url,
+        method: method,
+        data: JSON.stringify(productData),
+        contentType: 'application/json',
+        success: function(response) {
+            $('#productModal').modal('hide');
+            location.reload();
+        },
+        error: function(xhr) {
+            alert('Error saving product: ' + xhr.responseJSON.message);
+        }
+    });
+}
+
+function showStockModal(productId) {
+    currentProductId = productId;
+    
+    // Fetch stock details
+    $.get(`{% url 'product_stock' 0 %}`.replace('0', productId), function(data) {
+        $('#currentStock').text(data.current_quantity);
+        
+        // Show stock history
+        const $history = $('#stockHistory');
+        $history.empty();
+        
+        data.transactions.forEach(transaction => {
+            const transactionType = transaction.transaction_type === 'IN' ? 'Stock In' : 'Stock Out';
+            $history.append(`
+                <div class="stock-transaction stock-${transaction.transaction_type.toLowerCase()}">
+                    <div class="d-flex justify-content-between">
+                        <strong>${transactionType}</strong>
+                        <span>${transaction.quantity} units</span>
+                    </div>
+                    <small class="text-muted">
+                        ${transaction.created_at} - ${transaction.notes || ''}
+                    </small>
+                </div>
+            `);
+        });
+        
+        $('#stockModal').modal('show');
+    });
+}
+
+function addStock() {
+    const quantity = parseInt($('#stockQuantity').val());
+    if (quantity <= 0) {
+        alert('Please enter a valid quantity');
+        return;
+    }
+
+    $.ajax({
+        url: `{% url 'product_stock' 0 %}`.replace('0', currentProductId),
+        method: 'POST',
+        data: JSON.stringify({
+            transaction_type: 'IN',
+            quantity: quantity,
+            notes: 'Manual stock addition'
+        }),
+        contentType: 'application/json',
+        success: function() {
+            showStockModal(currentProductId);
+            $('#stockQuantity').val('');
+        },
+        error: function(xhr) {
+            alert('Error updating stock: ' + xhr.responseJSON.message);
+        }
+    });
+}
+
+function removeStock() {
+    const quantity = parseInt($('#stockQuantity').val());
+    if (quantity <= 0) {
+        alert('Please enter a valid quantity');
+        return;
+    }
+
+    $.ajax({
+        url: `{% url 'product_stock' 0 %}`.replace('0', currentProductId),
+        method: 'POST',
+        data: JSON.stringify({
+            transaction_type: 'OUT',
+            quantity: quantity,
+            notes: 'Manual stock removal'
+        }),
+        contentType: 'application/json',
+        success: function() {
+            showStockModal(currentProductId);
+            $('#stockQuantity').val('');
+        },
+        error: function(xhr) {
+            alert('Error updating stock: ' + xhr.responseJSON.message);
+        }
+    });
+}
+
+// Reset form when modal is closed
+$('#productModal').on('hidden.bs.modal', function() {
+    currentProductId = null;
+    $('#productForm')[0].reset();
+    $('#productModalTitle').text('New Product');
+});
+</script>
+{% endblock %} 

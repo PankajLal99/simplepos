@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice #{{ invoice.invoice_number }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --invoice-primary: #0d6efd;
+            --invoice-border: #dee2e6;
+            --invoice-bg: #f8f9fa;
+        }
+
+        body {
+            background-color: var(--invoice-bg);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        .invoice-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            padding: 2rem;
+        }
+
+        .invoice-header {
+            border-bottom: 2px solid var(--invoice-border);
+            margin-bottom: 2rem;
+            padding-bottom: 2rem;
+        }
+
+        .invoice-footer {
+            border-top: 2px solid var(--invoice-border);
+            margin-top: 2rem;
+            padding-top: 2rem;
+        }
+
+        .table {
+            margin-bottom: 0;
+        }
+
+        .table > :not(caption) > * > * {
+            padding: 1rem;
+            vertical-align: middle;
+        }
+
+        .table thead th {
+            background-color: var(--invoice-bg);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.875rem;
+            letter-spacing: 0.5px;
+        }
+
+        .table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .product-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .product-name {
+            font-weight: 600;
+            color: #212529;
+        }
+
+        .product-sku {
+            font-size: 0.875rem;
+            color: #6c757d;
+        }
+
+        .amount {
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+            font-weight: 600;
+        }
+
+        .print-button {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 1000;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: all 0.2s ease;
+        }
+
+        .print-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .no-print {
+                display: none !important;
+            }
+
+            .invoice-container {
+                margin: 0;
+                padding: 0;
+                box-shadow: none;
+                max-width: none;
+            }
+
+            .invoice-header {
+                margin-bottom: 1.5rem;
+                padding-bottom: 1.5rem;
+            }
+
+            .invoice-footer {
+                margin-top: 1.5rem;
+                padding-top: 1.5rem;
+            }
+
+            .table > :not(caption) > * > * {
+                padding: 0.75rem;
+            }
+
+            @page {
+                margin: 1.5cm;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="invoice-container">
+        <button class="btn btn-primary print-button no-print" onclick="window.print()">
+            <i class="bi bi-printer"></i> Print Invoice
+        </button>
+
+        <div class="invoice-header">
+            <div class="row align-items-center">
+                <div class="col-6">
+                    <h2 class="fw-bold mb-2">Simple POS</h2>
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-receipt text-primary"></i>
+                        <span class="text-muted">Invoice #{{ invoice.invoice_number }}</span>
+                    </div>
+                </div>
+                <div class="col-6 text-end">
+                    <div class="d-flex flex-column align-items-end gap-1">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-calendar text-primary"></i>
+                            <span>{{ invoice.date|date:"F d, Y" }}</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-clock text-primary"></i>
+                            <span>{{ invoice.date|date:"h:i A" }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th class="text-end">Price</th>
+                        <th class="text-center">Quantity</th>
+                        <th class="text-end">Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in invoice.items.all %}
+                    <tr>
+                        <td>
+                            <div class="product-info">
+                                <span class="product-name">{{ item.product.name }}</span>
+                                <span class="product-sku">SKU: {{ item.product.sku }}</span>
+                            </div>
+                        </td>
+                        <td class="text-end amount">₹{{ item.price|floatformat:2 }}</td>
+                        <td class="text-center">{{ item.quantity }}</td>
+                        <td class="text-end amount">₹{{ item.subtotal|floatformat:2 }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="3" class="text-end fw-bold">Total Amount:</td>
+                        <td class="text-end fw-bold amount">₹{{ invoice.total_amount|floatformat:2 }}</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <div class="invoice-footer">
+            <div class="text-center">
+                <p class="text-muted mb-2">Thank you for your business!</p>
+                <p class="text-muted small mb-0">
+                    <i class="bi bi-shield-check me-1"></i>
+                    This is a computer-generated invoice, no signature required
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // Auto trigger print dialog when page loads
+    window.onload = function() {
+        // Small delay to ensure content is fully rendered
+        setTimeout(function() {
+            window.print();
+        }, 500);
+    };
+    </script>
+</body>
+</html> 

@@ -1,0 +1,284 @@
+{% extends 'pos/base.html' %}
+
+{% block title %}Pricing - Simple POS{% endblock %}
+
+{% block extra_css %}
+<style>
+.pricing-card {
+    transition: all 0.3s ease;
+    border: none;
+    border-radius: 1rem;
+}
+
+.pricing-card:hover {
+    transform: translateY(-8px);
+}
+
+.pricing-card.popular {
+    border: 2px solid var(--bs-primary);
+}
+
+.pricing-card .card-body {
+    padding: 1.5rem;
+}
+
+.pricing-badge {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    font-size: var(--font-size-sm);
+    padding: 0.4rem 0.6rem;
+    border-radius: 2rem;
+}
+
+.pricing-feature {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: var(--font-size-base);
+}
+
+.pricing-feature:last-child {
+    border-bottom: none;
+}
+
+.pricing-feature i {
+    font-size: 1.1rem;
+}
+
+/* Form controls */
+.form-control {
+    border-radius: 0.5rem;
+    border: 1px solid #dee2e6;
+    padding: 0.5rem 0.75rem;
+    font-size: var(--font-size-base);
+}
+
+.form-control:focus {
+    box-shadow: 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25);
+    border-color: var(--bs-primary);
+}
+
+/* Modals */
+.modal-content {
+    border: none;
+    border-radius: 1rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.modal-header {
+    border-bottom: 1px solid #dee2e6;
+    padding: 1rem;
+}
+
+.modal-footer {
+    border-top: 1px solid #dee2e6;
+    padding: 1rem;
+}
+
+/* Pricing specific styles */
+.display-4 {
+    font-size: 2.5rem;
+    font-weight: var(--font-weight-semibold);
+}
+
+.lead {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-normal);
+}
+
+.card-title {
+    font-size: 1.25rem;
+    font-weight: var(--font-weight-semibold);
+}
+
+.text-success {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-medium);
+}
+
+/* Button styles */
+.btn-lg {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-medium);
+    padding: 0.75rem 1.5rem;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <h1 class="display-4 fw-bold mb-3">Choose Your Plan</h1>
+        <p class="lead text-muted">Start with 100 free invoices, then choose a plan that works for you</p>
+    </div>
+
+    <div class="row justify-content-center g-4">
+        <!-- Monthly Plan -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card pricing-card h-100 shadow-sm">
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <h3 class="card-title fw-bold">Monthly</h3>
+                        <div class="display-4 fw-bold my-3">₹499</div>
+                        <p class="text-muted">per month</p>
+                    </div>
+                    <div class="pricing-features">
+                        <div class="pricing-feature">
+                            <i class="bi bi-check-circle-fill text-success"></i>
+                            <span>Unlimited Invoices</span>
+                        </div>
+                        <div class="pricing-feature">
+                            <i class="bi bi-check-circle-fill text-success"></i>
+                            <span>Product Management</span>
+                        </div>
+                        <div class="pricing-feature">
+                            <i class="bi bi-check-circle-fill text-success"></i>
+                            <span>Stock Management</span>
+                        </div>
+                        <div class="pricing-feature">
+                            <i class="bi bi-check-circle-fill text-success"></i>
+                            <span>Basic Support</span>
+                        </div>
+                    </div>
+                    <div class="d-grid mt-4">
+                        <button class="btn btn-primary btn-lg d-flex align-items-center justify-content-center gap-2" 
+                                onclick="subscribe('monthly')">
+                            <i class="bi bi-credit-card"></i> Subscribe Now
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Yearly Plan -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card pricing-card popular h-100 shadow">
+                <span class="badge bg-success pricing-badge">Best Value</span>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <h3 class="card-title fw-bold">Yearly</h3>
+                        <div class="display-4 fw-bold my-3">₹4,999</div>
+                        <p class="text-muted">per year</p>
+                        <p class="text-success fw-semibold">
+                            <i class="bi bi-gift-fill me-1"></i>Save ₹989 yearly
+                        </p>
+                    </div>
+                    <div class="pricing-features">
+                        <div class="pricing-feature">
+                            <i class="bi bi-check-circle-fill text-success"></i>
+                            <span>Unlimited Invoices</span>
+                        </div>
+                        <div class="pricing-feature">
+                            <i class="bi bi-check-circle-fill text-success"></i>
+                            <span>Product Management</span>
+                        </div>
+                        <div class="pricing-feature">
+                            <i class="bi bi-check-circle-fill text-success"></i>
+                            <span>Stock Management</span>
+                        </div>
+                        <div class="pricing-feature">
+                            <i class="bi bi-check-circle-fill text-success"></i>
+                            <span>Priority Support</span>
+                        </div>
+                        <div class="pricing-feature">
+                            <i class="bi bi-check-circle-fill text-success"></i>
+                            <span>2 Months Free</span>
+                        </div>
+                    </div>
+                    <div class="d-grid mt-4">
+                        <button class="btn btn-success btn-lg d-flex align-items-center justify-content-center gap-2" 
+                                onclick="subscribe('yearly')">
+                            <i class="bi bi-credit-card"></i> Subscribe Now
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Subscription Modal -->
+<div class="modal fade" id="subscriptionModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold">Complete Your Subscription</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="subscriptionForm">
+                    <div class="mb-3">
+                        <label for="email" class="form-label fw-semibold">Email</label>
+                        <input type="email" class="form-control" id="email" 
+                               placeholder="Enter your email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="name" class="form-label fw-semibold">Full Name</label>
+                        <input type="text" class="form-control" id="name" 
+                               placeholder="Enter your full name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="phone" class="form-label fw-semibold">Phone Number</label>
+                        <input type="tel" class="form-control" id="phone" 
+                               placeholder="Enter your phone number" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="business" class="form-label fw-semibold">Business Name</label>
+                        <input type="text" class="form-control" id="business" 
+                               placeholder="Enter your business name" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary d-flex align-items-center gap-2" 
+                        onclick="processSubscription()">
+                    <i class="bi bi-credit-card"></i> Proceed to Payment
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let selectedPlan = '';
+
+function subscribe(plan) {
+    selectedPlan = plan;
+    $('#subscriptionModal').modal('show');
+}
+
+function processSubscription() {
+    const formData = {
+        email: $('#email').val(),
+        name: $('#name').val(),
+        phone: $('#phone').val(),
+        business: $('#business').val(),
+        plan: selectedPlan
+    };
+
+    $.ajax({
+        url: '',
+        method: 'POST',
+        data: JSON.stringify(formData),
+        contentType: 'application/json',
+        success: function(response) {
+            if (response.status === 'success') {
+                window.location.href = response.payment_url;
+            } else {
+                alert(response.message || 'Error processing subscription');
+            }
+        },
+        error: function(xhr) {
+            const errorMessage = xhr.responseJSON?.message || 'Error processing subscription';
+            alert(errorMessage);
+        }
+    });
+}
+</script>
+{% endblock %} 

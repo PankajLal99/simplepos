@@ -1,0 +1,888 @@
+{% extends 'pos/base.html' %}
+
+{% block extra_css %}
+<style>
+/* Mobile-specific styles */
+@media (max-width: 991.98px) {
+    body {
+        background-color: #f8f9fa;
+    }
+    
+    .search-results {
+        position: absolute;
+        top: auto;
+        left: 0;
+        right: 0;
+        top: 100%;
+        max-height: 50vh;
+        border-radius: 0;
+        border-top: 1px solid #eee;
+        background: white;
+    }
+    
+    .search-item {
+        padding: 12px;
+        border-bottom: 1px solid #f0f0f0;
+        font-size: var(--font-size-base);
+    }
+    
+    .invoice-item {
+        background: white;
+        border-radius: 12px;
+        margin-bottom: 8px;
+        padding: 12px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    
+    .invoice-item-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 8px;
+    }
+    
+    .invoice-item-name {
+        font-weight: var(--font-weight-medium);
+        margin: 0;
+        font-size: var(--font-size-base);
+    }
+    
+    .invoice-item-price {
+        color: #666;
+        font-size: var(--font-size-sm);
+    }
+    
+    .invoice-item-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .quantity-control {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .quantity-btn {
+        width: 32px;
+        height: 32px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        font-size: var(--font-size-sm);
+    }
+    
+    .quantity-input {
+        width: 70px;
+        text-align: center;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 4px;
+        font-size: var(--font-size-base);
+    }
+    
+    .bottom-bar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: white;
+        padding: 12px;
+        box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+        z-index: 1000;
+    }
+    
+    .total-section {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+    }
+    
+    .total-label {
+        font-size: var(--font-size-base);
+        font-weight: var(--font-weight-medium);
+    }
+    
+    .total-amount {
+        font-size: var(--font-size-lg);
+        font-weight: var(--font-weight-semibold);
+        color: #0d6efd;
+    }
+    
+    .action-buttons {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+    }
+    
+    .action-btn {
+        padding: 10px;
+        border-radius: 12px;
+        font-weight: var(--font-weight-medium);
+        font-size: var(--font-size-base);
+    }
+}
+
+/* Common styles */
+.search-results {
+    background: white;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.search-item {
+    cursor: pointer;
+    padding: 10px 14px;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: var(--font-size-base);
+}
+
+.search-item:last-child {
+    border-bottom: none;
+}
+
+.search-item:hover, .search-item.selected {
+    background-color: #f8f9fa;
+}
+
+.search-item.selected {
+    background-color: #e9ecef;
+}
+
+.stock-warning {
+    color: #dc3545;
+    font-size: var(--font-size-sm);
+    margin-top: 4px;
+}
+
+.product-search {
+    position: relative;
+}
+
+.search-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: white;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.search-item {
+    cursor: pointer;
+    padding: 10px 14px;
+    border-bottom: 1px solid #eee;
+    transition: all 0.2s ease;
+    font-size: var(--font-size-base);
+}
+
+.search-item:last-child {
+    border-bottom: none;
+}
+
+.search-item:hover, .search-item.selected {
+    background-color: #f8f9fa;
+}
+
+.search-item.selected {
+    background-color: #e9ecef;
+}
+
+kbd {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    box-shadow: 0 1px 0 rgba(0,0,0,0.2);
+    color: #212529;
+    font-size: var(--font-size-sm);
+    padding: 2px 4px;
+}
+
+.input-group-text {
+    background-color: transparent;
+    font-size: var(--font-size-base);
+}
+
+.form-control:focus {
+    box-shadow: none;
+    border-color: #dee2e6;
+}
+
+.btn {
+    border-radius: 6px;
+    font-size: var(--font-size-base);
+}
+
+.table > :not(caption) > * > * {
+    padding: 0.75rem;
+    font-size: var(--font-size-base);
+}
+
+.modal-content {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.modal-title {
+    font-size: 1.1rem;
+    font-weight: var(--font-weight-semibold);
+}
+
+/* Add new styles for quantity inputs */
+.quantity-input {
+    width: 70px;
+    text-align: center;
+    font-size: var(--font-size-base);
+}
+
+.input-group-sm .quantity-input {
+    width: 70px;
+}
+
+.input-group-sm .btn {
+    padding: 0.3rem 0.5rem;
+    font-size: var(--font-size-sm);
+}
+
+/* Adjust card styles */
+.card-title {
+    font-size: 1.1rem;
+    font-weight: var(--font-weight-semibold);
+}
+
+.card-subtitle {
+    font-size: var(--font-size-base);
+}
+
+/* Adjust badge styles */
+.badge {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+}
+
+@media print {
+    .no-print {
+        display: none !important;
+    }
+}
+
+/* Search input placeholder */
+#productSearch::placeholder {
+    font-size: var(--font-size-sm);
+    color: #adb5bd;
+}
+
+#productSearch {
+    font-size: var(--font-size-base);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row g-4 mt-3">
+    <!-- Product Search and Invoice Section -->
+    <div class="col-lg-8">
+        <div class="card shadow-sm border-0 rounded-4 mb-4">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="card-title mb-0">New Invoice</h4>
+                    <span class="badge bg-primary rounded-pill" id="itemCount">0 items</span>
+                </div>
+                
+                <div class="product-search mb-4">
+                    <div class="input-group input-group-lg">
+                        <span class="input-group-text bg-white border-end-0">
+                            <i class="bi bi-search"></i>
+                        </span>
+                        <input type="text" id="productSearch" class="form-control border-start-0 ps-0" 
+                               placeholder="Type product name to search..." autofocus>
+                    </div>
+                    <div id="searchResults" class="search-results d-none shadow-sm rounded-3 mt-1"></div>
+                </div>
+                
+                <!-- Desktop View -->
+                <div class="table-responsive d-none d-lg-block">
+                    <table class="table table-hover align-middle" id="invoiceTable">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Product</th>
+                                <th class="text-end">Price</th>
+                                <th class="text-center" style="width: 150px;">Quantity</th>
+                                <th class="text-end">Subtotal</th>
+                                <th class="text-center" style="width: 50px;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="invoiceItems"></tbody>
+                        <tfoot class="table-light">
+                            <tr>
+                                <td colspan="3" class="text-end fw-bold">Total:</td>
+                                <td colspan="2" class="fw-bold" id="totalAmount">₹0.00</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3" class="text-end">Round Off:</td>
+                                <td colspan="2" id="roundOff">₹0.00</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3" class="text-end">Amount to Collect:</td>
+                                <td colspan="2" class="fw-bold" id="finalAmount">₹0.00</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                
+                <!-- Mobile View -->
+                <div class="d-lg-none" id="mobileInvoiceItems"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Buttons (Desktop) -->
+    <div class="col-lg-4 d-none d-lg-block">
+        <div class="card shadow-sm border-0 rounded-4">
+            <div class="card-body p-4">
+                <h4 class="card-title mb-4">Actions</h4>
+                <div class="d-grid gap-3">
+                    <button class="btn btn-primary btn-lg d-flex align-items-center justify-content-center gap-2" id="printInvoice">
+                        <i class="bi bi-printer"></i> Print Invoice
+                    </button>
+                    <button class="btn btn-success btn-lg d-flex align-items-center justify-content-center gap-2" id="newInvoice">
+                        <i class="bi bi-plus-circle"></i> New Invoice
+                    </button>
+                </div>
+
+                <div class="mt-4">
+                    <h5 class="mb-3">Keyboard Shortcuts</h5>
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <span><kbd>/</kbd> Focus Search</span>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <span><kbd>↑</kbd> <kbd>↓</kbd> Navigate Results</span>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <span><kbd>Enter</kbd> Select Product</span>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between align-items-center keyboard-shortcut" data-key="P">
+                            <span><kbd>⌘P</kbd> Print Invoice</span>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between align-items-center keyboard-shortcut" data-key="N">
+                            <span><kbd>⌘N</kbd> New Invoice</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Mobile Bottom Bar -->
+<div class="d-lg-none bottom-bar">
+    <div class="total-section">
+        <span class="total-label">Total:</span>
+        <span class="total-amount" id="mobileTotalAmount">₹0.00</span>
+    </div>
+    <div class="total-section">
+        <span class="total-label">Round Off:</span>
+        <span class="total-amount" id="mobileRoundOff">₹0.00</span>
+    </div>
+    <div class="total-section">
+        <span class="total-label">Amount to Collect:</span>
+        <span class="total-amount fw-bold" id="mobileFinalAmount">₹0.00</span>
+    </div>
+    <div class="action-buttons">
+        <button class="btn btn-primary action-btn" id="mobilePrintInvoice">
+            <i class="bi bi-printer me-2"></i>Print
+        </button>
+        <button class="btn btn-success action-btn" id="mobileNewInvoice">
+            <i class="bi bi-plus-circle me-2"></i>New
+        </button>
+    </div>
+</div>
+
+<!-- Product Creation Modal -->
+<div class="modal fade" id="createProductModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4">
+            <div class="modal-header border-0">
+                <h5 class="modal-title">Create New Product</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="createProductForm">
+                    <div class="mb-3">
+                        <label for="productName" class="form-label">Product Name</label>
+                        <input type="text" class="form-control form-control-lg" id="productName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="productPrice" class="form-label">Price</label>
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text">₹</span>
+                            <input type="number" class="form-control" id="productPrice" step="0.01" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="maintainStock">
+                            <label class="form-check-label" for="maintainStock">
+                                Maintain Stock
+                            </label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="saveProduct">Create Product</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Add CSRF token helper function
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+let currentInvoice = {
+    items: [],
+    total: 0
+};
+
+let selectedIndex = -1;
+let searchResults = [];
+let lastQuery = '';
+let lastKeyWasArrow = false;
+let updateTimeout = null;
+
+// Keyboard navigation and search
+$('#productSearch').on('keyup', function(e) {
+    const query = $(this).val();
+    if (query.length < 2) {
+        $('#searchResults').addClass('d-none');
+        return;
+    }
+
+    // Only reset selectedIndex if the query actually changed
+    const isNewSearch = query !== lastQuery;
+    lastQuery = query;
+
+    $.ajax({
+        url: '{% url "search_product" %}',
+        method: 'POST',
+        data: JSON.stringify({ query: query }),
+        contentType: 'application/json',
+        success: function(response) {
+            const $results = $('#searchResults');
+            $results.empty();
+            searchResults = [];
+            
+            if (response.status === 'not_found') {
+                $results.append(`
+                    <div class="search-item text-center p-3">
+                        <p class="mb-2">${response.message}</p>
+                        <button class="btn btn-primary btn-sm" onclick="showCreateProductModal('${query}')">
+                            Create New Product
+                        </button>
+                    </div>
+                `);
+            } else {
+                searchResults = response.products;
+                response.products.forEach((product, index) => {
+                    const stockWarning = product.maintain_stock && product.stock_quantity === 0 ? 
+                        '<div class="stock-warning">Out of stock</div>' : '';
+                    $results.append(`
+                        <div class="search-item${(isNewSearch && index === 0) ? ' selected' : ''}" 
+                             data-product='${JSON.stringify(product)}'
+                             data-index="${index}">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="fw-semibold">${product.name}</div>
+                                    <small class="text-muted">SKU: ${product.sku}</small>
+                                    ${stockWarning}
+                                </div>
+                                <div class="text-primary fw-bold">₹${product.price}</div>
+                            </div>
+                        </div>
+                    `);
+                });
+                // Only reset selectedIndex if this is a new search
+                if (isNewSearch) {
+                    selectedIndex = 0;
+                }
+            }
+            $results.removeClass('d-none');
+            updateSelectedItem();
+        }
+    });
+});
+
+// Keyboard navigation in search results
+$(document).on('keydown', function(e) {
+    // Focus search on '/' key
+    if (e.key === '/' && !$('#productSearch').is(':focus')) {
+        e.preventDefault();
+        $('#productSearch').focus();
+    }
+    
+    // Save invoice on Ctrl+P or Cmd+P
+    if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
+        e.preventDefault();
+        saveInvoice();
+    }
+    
+    // New invoice on Ctrl+N or Cmd+N
+    if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+        e.preventDefault();
+        $('#newInvoice, #mobileNewInvoice').click();
+    }
+
+    // Escape key to clear search
+    if (e.key === 'Escape' && $('#productSearch').is(':focus')) {
+        $('#productSearch').val('');
+        $('#searchResults').addClass('d-none');
+    }
+
+    // Arrow keys and Enter for product selection
+    if ($('#searchResults').is(':visible') && searchResults.length > 0) {
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            selectedIndex = Math.min(selectedIndex + 1, searchResults.length - 1);
+            lastKeyWasArrow = true;
+            updateSelectedItem();
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            selectedIndex = Math.max(selectedIndex - 1, 0);
+            lastKeyWasArrow = true;
+            updateSelectedItem();
+        } else if (e.key === 'Enter' && selectedIndex >= 0) {
+            e.preventDefault();
+            const product = searchResults[selectedIndex];
+            addToInvoice(product);
+            $('#productSearch').val('').focus();
+            $('#searchResults').addClass('d-none');
+        }
+    }
+});
+
+function updateSelectedItem() {
+    $('.search-item').removeClass('selected');
+    $(`.search-item[data-index="${selectedIndex}"]`).addClass('selected');
+    // Scroll into view if needed
+    const $selected = $('.search-item.selected');
+    const $results = $('#searchResults');
+    if ($selected.length && $results.length) {
+        const resultsTop = $results.offset().top;
+        const resultsBottom = resultsTop + $results.height();
+        const selectedTop = $selected.offset().top;
+        const selectedBottom = selectedTop + $selected.height();
+        if (selectedTop < resultsTop) {
+            $results.scrollTop($results.scrollTop() - (resultsTop - selectedTop));
+        } else if (selectedBottom > resultsBottom) {
+            $results.scrollTop($results.scrollTop() + (selectedBottom - resultsBottom));
+        }
+    }
+}
+
+// Add product to invoice
+$(document).on('click', '.search-item', function() {
+    const product = $(this).data('product');
+    addToInvoice(product);
+    $('#productSearch').val('').focus();
+    $('#searchResults').addClass('d-none');
+});
+
+function addToInvoice(product) {
+    const existingItem = currentInvoice.items.find(item => item.product_id === product.id);
+    
+    if (existingItem) {
+        existingItem.quantity += 1;
+    } else {
+        currentInvoice.items.push({
+            product_id: product.id,
+            name: product.name,
+            price: product.price,
+            quantity: 1
+        });
+    }
+    
+    updateInvoiceTable();
+}
+
+// Add new function for real-time quantity updates
+function handleQuantityInput(index, input) {
+    const value = parseInt(input.value) || 0;
+    const item = currentInvoice.items[index];
+    
+    // Update totals without changing the item quantity
+    const tempQuantity = item.quantity;
+    item.quantity = value > 0 ? value : tempQuantity;
+    updateTotals();
+    item.quantity = tempQuantity;
+}
+
+function updateTotals() {
+    currentInvoice.total = 0;
+    currentInvoice.items.forEach(item => {
+        currentInvoice.total += item.price * item.quantity;
+    });
+    
+    // Calculate round off and final amount
+    const rounded = Math.round(currentInvoice.total);
+    const roundOff = +(rounded - currentInvoice.total).toFixed(2);
+    
+    $('#totalAmount, #mobileTotalAmount').text(`₹${currentInvoice.total.toFixed(2)}`);
+    $('#roundOff, #mobileRoundOff').text(`₹${roundOff >= 0 ? '+' : ''}${roundOff.toFixed(2)}`);
+    $('#finalAmount, #mobileFinalAmount').text(`₹${rounded.toFixed(2)}`);
+}
+
+function updateQuantity(index, change) {
+    const item = currentInvoice.items[index];
+    const newQuantity = item.quantity + change;
+    
+    if (newQuantity > 0) {
+        item.quantity = newQuantity;
+        updateInvoiceTable();
+    } else if (newQuantity === 0) {
+        removeItem(index);
+    }
+}
+
+function updateInvoiceTable() {
+    const $tbody = $('#invoiceItems');
+    const $mobileItems = $('#mobileInvoiceItems');
+    $tbody.empty();
+    $mobileItems.empty();
+    
+    currentInvoice.total = 0;
+    
+    currentInvoice.items.forEach((item, index) => {
+        const subtotal = item.price * item.quantity;
+        currentInvoice.total += subtotal;
+        
+        // Desktop view
+        $tbody.append(`
+            <tr>
+                <td>
+                    <div class="fw-semibold">${item.name}</div>
+                    <small class="text-muted">₹${item.price.toFixed(2)} each</small>
+                </td>
+                <td class="text-end">₹${item.price.toFixed(2)}</td>
+                <td>
+                    <div class="input-group input-group-sm">
+                        <button class="btn btn-outline-secondary" onclick="updateQuantity(${index}, -1)">
+                            <i class="bi bi-dash"></i>
+                        </button>
+                        <input type="number" class="form-control text-center" value="${item.quantity}" 
+                               oninput="handleQuantityInput(${index}, this)"
+                               onblur="updateQuantity(${index}, parseInt(this.value) - ${item.quantity})">
+                        <button class="btn btn-outline-secondary" onclick="updateQuantity(${index}, 1)">
+                            <i class="bi bi-plus"></i>
+                        </button>
+                    </div>
+                </td>
+                <td class="text-end fw-semibold">₹${subtotal.toFixed(2)}</td>
+                <td class="text-center">
+                    <button class="btn btn-outline-danger btn-sm" onclick="removeItem(${index})">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        `);
+
+        // Mobile view
+        $mobileItems.append(`
+            <div class="invoice-item">
+                <div class="invoice-item-header">
+                    <div>
+                        <h6 class="invoice-item-name">${item.name}</h6>
+                        <div class="invoice-item-price">₹${item.price.toFixed(2)} each</div>
+                    </div>
+                    <button class="btn btn-outline-danger btn-sm" onclick="removeItem(${index})">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
+                <div class="invoice-item-actions">
+                    <div class="quantity-control">
+                        <button class="quantity-btn" onclick="updateQuantity(${index}, -1)">
+                            <i class="bi bi-dash"></i>
+                        </button>
+                        <input type="number" class="quantity-input" value="${item.quantity}" 
+                               oninput="handleQuantityInput(${index}, this)"
+                               onblur="updateQuantity(${index}, parseInt(this.value) - ${item.quantity})">
+                        <button class="quantity-btn" onclick="updateQuantity(${index}, 1)">
+                            <i class="bi bi-plus"></i>
+                        </button>
+                    </div>
+                    <div class="text-end flex-grow-1">
+                        <div class="fw-semibold">₹${subtotal.toFixed(2)}</div>
+                    </div>
+                </div>
+            </div>
+        `);
+    });
+    
+    updateTotals();
+    $('#itemCount').text(`${currentInvoice.items.length} items`);
+    hasUnsavedChanges = currentInvoice.items.length > 0;
+}
+
+function removeItem(index) {
+    currentInvoice.items.splice(index, 1);
+    updateInvoiceTable();
+}
+
+// Add toast notification function
+function showToast(message, type = 'info') {
+    const toast = document.createElement('div');
+    toast.className = `toast align-items-center text-white bg-${type} border-0 position-fixed bottom-0 end-0 m-3`;
+    toast.setAttribute('role', 'alert');
+    toast.setAttribute('aria-live', 'assertive');
+    toast.setAttribute('aria-atomic', 'true');
+    
+    toast.innerHTML = `
+        <div class="d-flex">
+            <div class="toast-body">
+                ${message}
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    `;
+    
+    document.body.appendChild(toast);
+    const bsToast = new bootstrap.Toast(toast);
+    bsToast.show();
+    
+    // Remove toast after it's hidden
+    toast.addEventListener('hidden.bs.toast', () => {
+        document.body.removeChild(toast);
+    });
+}
+
+// Print invoice functionality
+async function saveInvoice() {
+    try {
+        // Get current invoice items
+        const items = currentInvoice.items;
+        
+        if (items.length === 0) {
+            alert('Please add items to the invoice first');
+            return;
+        }
+        
+        // Prepare invoice data
+        const invoiceData = {
+            items: items.map(item => ({
+                product_id: item.product_id,
+                quantity: item.quantity,
+                price: item.price
+            }))
+        };
+        
+        // Convert to JSON string
+        const jsonData = JSON.stringify(invoiceData);
+        
+        // Get CSRF token
+        const csrfToken = getCookie('csrftoken');
+        
+        // Send request
+        const response = await fetch('{% url "create_invoice" %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrfToken,
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: jsonData
+        });
+        
+        const data = await response.json();
+        
+        if (data.status === 'success') {
+            // Open print page in new window/tab
+            const printUrl = `{% url "print_invoice" 0 %}`.replace('0', data.invoice_id);
+            window.open(printUrl, '_blank');
+            // Clear current invoice after successful save
+            currentInvoice.items = [];
+            updateInvoiceTable();
+        } else {
+            alert(data.message || 'Error creating invoice');
+        }
+    } catch (error) {
+        alert('Error creating invoice: ' + error.message);
+    }
+}
+
+// Update the save invoice button click handler
+$('#printInvoice, #mobilePrintInvoice').on('click', function() {
+    saveInvoice();
+});
+
+// New invoice functionality
+$('#newInvoice, #mobileNewInvoice').on('click', function() {
+    if (currentInvoice.items.length > 0) {
+        if (confirm('Are you sure you want to create a new invoice? The current items will be cleared.')) {
+            currentInvoice.items = [];
+            updateInvoiceTable();
+        }
+    }
+});
+
+// Product creation functionality
+function showCreateProductModal(query) {
+    $('#productName').val(query);
+    $('#productPrice').val('');
+    $('#maintainStock').prop('checked', false);
+    $('#createProductModal').modal('show');
+}
+
+$('#saveProduct').on('click', function() {
+    const productData = {
+        name: $('#productName').val(),
+        price: parseFloat($('#productPrice').val()),
+        maintain_stock: $('#maintainStock').is(':checked')
+    };
+    
+    $.ajax({
+        url: '{% url "create_product" %}',
+        method: 'POST',
+        data: JSON.stringify(productData),
+        contentType: 'application/json',
+        success: function(response) {
+            if (response.status === 'success') {
+                $('#createProductModal').modal('hide');
+                addToInvoice(response.product);
+            } else {
+                alert(response.message || 'Error creating product');
+            }
+        },
+        error: function() {
+            alert('Error creating product');
+        }
+    });
+});
+</script>
+{% endblock %}
