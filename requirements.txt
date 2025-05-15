@@ -1,5 +1,4 @@
 Django==5.0.2
 python-dotenv
 Pillow
-django-crispy-forms
-crispy-bootstrap5
+xhtml2pdf

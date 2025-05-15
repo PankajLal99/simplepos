@@ -157,11 +157,11 @@
                     <div class="d-flex flex-column align-items-end gap-1">
                         <div class="d-flex align-items-center gap-2">
                             <i class="bi bi-calendar text-primary"></i>
-                            <span>{{ invoice.date|date:"F d, Y" }}</span>
+                            <span>{{ invoice.created_at|date:"F d, Y" }}</span>
                         </div>
                         <div class="d-flex align-items-center gap-2">
                             <i class="bi bi-clock text-primary"></i>
-                            <span>{{ invoice.date|date:"h:i A" }}</span>
+                            <span>{{ invoice.created_at|date:"h:i A" }}</span>
                         </div>
                     </div>
                 </div>
@@ -195,9 +195,19 @@
                 </tbody>
                 <tfoot>
                     <tr>
-                        <td colspan="3" class="text-end fw-bold">Total Amount:</td>
+                        <td colspan="3" class="text-end fw-bold">Subtotal:</td>
                         <td class="text-end fw-bold amount">₹{{ invoice.total_amount|floatformat:2 }}</td>
                     </tr>
+                    {% if invoice.round_off %}
+                    <tr>
+                        <td colspan="3" class="text-end">Round Off:</td>
+                        <td class="text-end amount">₹{{ invoice.round_off|floatformat:2 }}</td>
+                    </tr>
+                    <tr>
+                        <td colspan="3" class="text-end fw-bold">Total:</td>
+                        <td class="text-end fw-bold amount">₹{{ grand_total|floatformat:2 }}</td>
+                    </tr>
+                    {% endif %}
                 </tfoot>
             </table>
         </div>
